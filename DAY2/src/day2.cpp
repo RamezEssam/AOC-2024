@@ -113,7 +113,6 @@ int part2(std::vector<std::vector<int>> input) {
 	int result = 0;
 
 	for (int i = 0; i < input.size(); ++i) {
-		//std::cout << "report " << i << " ";
 		result += check_safety_with_tolerance(input[i]);
 	}
 
