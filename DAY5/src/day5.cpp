@@ -8,8 +8,10 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
+#include <algorithm>
 
 const char* INPUT_FILE_PATH = "..\\..\\DAY5\\input\\input.txt";
+
 
 typedef std::unordered_map<int, std::vector<int>> Rules;
 
@@ -106,9 +108,51 @@ int part1(std::tuple<Rules, PageUpdates> input) {
 	return result;
 }
 
+
+int sortUnorderedUpdates(std::vector<int> update, Rules rules) {
+	std::vector<std::tuple<int, int>> pageCounts;
+	for (int i = 0; i < update.size(); ++i) {
+		int count = 0;
+		for (int j = 0; j < update.size(); ++j) {
+			if (i != j){
+				for (int k = 0; k < rules[update[i]].size(); ++k) {
+					if (rules[update[i]][k] == update[j]) {
+						count++;
+					}
+				}
+			}
+			
+		}
+		pageCounts.emplace_back(std::make_tuple(update[i], count));
+	}
+
+	std::sort(pageCounts.begin(), pageCounts.end(), [](const auto& a, const auto& b) {
+		return std::get<1>(a) > std::get<1>(b);
+	});
+
+	return std::get<0>(pageCounts[pageCounts.size() / 2]);
+	
+}
+
+
+int part2(std::tuple<Rules, PageUpdates> input) {
+	Rules rules = std::get<0>(input);
+	PageUpdates updates = std::get<1>(input);
+	int result = 0;
+	for (int i = 0; i < updates.size(); ++i) {
+		if (checkUpdateOrder(rules, updates[i]) == 0) {
+			result += sortUnorderedUpdates(updates[i], rules);
+		}
+	}
+
+	return result;
+
+}
+
 int main() {
 	std::tuple<Rules, PageUpdates> input = read_input(INPUT_FILE_PATH);
 
 	std::cout << "PART 1: " << part1(input) << std::endl;
+	std::cout << "PART 2: " << part2(input) << std::endl;
 	return 0;
 }
