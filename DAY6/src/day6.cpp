@@ -8,11 +8,8 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_set>
-#include <thread>
-#include <chrono> // For duration literals
 
 const char* INPUT_FILE_PATH = "..\\..\\DAY6\\input\\input.txt";
-
 
 
 typedef std::vector<std::vector<char>> Grid;
@@ -114,15 +111,13 @@ Position find_guard(Grid input) {
 	return pos;
 }
 
-size_t part1(Grid input) {
+std::unordered_set<Position> part1(Grid input) {
 	Position guard = find_guard(input);
 	std::unordered_set<Position> hashSet;
 	int y_pos = guard.x;
 	int x_pos = guard.y;
 	Direction dir = guard.dir;
-	if (y_pos == -1 && x_pos == -1) {
-		return 0;
-	}
+	
 
 	while (y_pos < input.size() && x_pos < input[0].size() && y_pos >= 0 && x_pos >= 0) {
 		if (input[y_pos][x_pos] != '#') {
@@ -164,12 +159,12 @@ size_t part1(Grid input) {
 
 	}
 
-	return hashSet.size();
+	return hashSet;
 }
 
 
 
-int part2(Grid input) {
+int part2(Grid input, std::unordered_set<Position> visited) {
 
 	Position guard = find_guard(input);
 	std::unordered_set<State> hashSet;
@@ -182,64 +177,64 @@ int part2(Grid input) {
 	}
 
 	int result = 0;
-	for (int i = 0; i < input.size(); ++i) {
-		for (int j = 0; j < input[0].size(); ++j) {
-			hashSet.clear();
-			char prev_pos = input[i][j];
-			if (input[i][j] != input[guard.x][guard.y]) {
-				input[i][j] = '#';
+	for (const auto& pos : visited) {
+		
+		hashSet.clear();
+		char prev_pos = input[pos.x][pos.y];
+		if (input[pos.x][pos.y] != input[guard.x][guard.y]) {
+			
+			input[pos.x][pos.y] = '#';
+		}
+		y_pos = guard.x;
+		x_pos = guard.y;
+		dir = guard.dir;
+
+		while (y_pos < input.size() && x_pos < input[0].size() && y_pos >= 0 && x_pos >= 0) {
+
+			if (input[y_pos][x_pos] != '#') {
+				if (hashSet.find(State{ y_pos, x_pos, dir }) != hashSet.end()) {
+					result++;
+					break;
+				}
+				hashSet.insert(State{ y_pos, x_pos, dir });	
 			}
-			y_pos = guard.x;
-			x_pos = guard.y;
-			dir = guard.dir;
-
-			while (y_pos < input.size() && x_pos < input[0].size() && y_pos >= 0 && x_pos >= 0) {
-
-				if (input[y_pos][x_pos] != '#') {
-					if (hashSet.find(State{ y_pos, x_pos, dir }) != hashSet.end()) {
-						result++;
-						break;
-					}
-					hashSet.insert(State{ y_pos, x_pos, dir });	
-				}
-				else {
-					if (dir == Direction::Up) {
-						y_pos++;
-						dir = Direction::Right;
-						hashSet.insert(State{ y_pos, x_pos, dir });
-					}
-					else if (dir == Direction::Down) {
-						y_pos--;
-						dir = Direction::Left;
-						hashSet.insert(State{ y_pos, x_pos, dir });
-					}
-					else if (dir == Direction::Left) {
-						x_pos++;
-						dir = Direction::Up;
-						hashSet.insert(State{ y_pos, x_pos, dir });
-					}
-					else if (dir == Direction::Right) {
-						x_pos--;
-						dir = Direction::Down;
-						hashSet.insert(State{ y_pos, x_pos, dir });
-					}
-				}
-
+			else {
 				if (dir == Direction::Up) {
-					y_pos--;
+					y_pos++;
+					dir = Direction::Right;
+					hashSet.insert(State{ y_pos, x_pos, dir });
 				}
 				else if (dir == Direction::Down) {
-					y_pos++;
+					y_pos--;
+					dir = Direction::Left;
+					hashSet.insert(State{ y_pos, x_pos, dir });
 				}
 				else if (dir == Direction::Left) {
-					x_pos--;
+					x_pos++;
+					dir = Direction::Up;
+					hashSet.insert(State{ y_pos, x_pos, dir });
 				}
 				else if (dir == Direction::Right) {
-					x_pos++;
+					x_pos--;
+					dir = Direction::Down;
+					hashSet.insert(State{ y_pos, x_pos, dir });
 				}
 			}
-			input[i][j] = prev_pos;
+
+			if (dir == Direction::Up) {
+				y_pos--;
+			}
+			else if (dir == Direction::Down) {
+				y_pos++;
+			}
+			else if (dir == Direction::Left) {
+				x_pos--;
+			}
+			else if (dir == Direction::Right) {
+				x_pos++;
+			}
 		}
+		input[pos.x][pos.y] = prev_pos;
 	}
 	return result;
 
@@ -248,11 +243,11 @@ int part2(Grid input) {
 int main() {
 	Grid input = read_input(INPUT_FILE_PATH);
 
-	size_t part1_answer = part1(input);
+	auto part1_answer = part1(input);
 
-	std::cout << "PART 1: " << part1_answer << std::endl;
+	std::cout << "PART 1: " << part1_answer.size() << std::endl;
 
-	size_t part2_answer = part2(input);
+	size_t part2_answer = part2(input, part1_answer);
 
 	std::cout << "PART 2: " << part2_answer << std::endl;
 
