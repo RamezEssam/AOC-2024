@@ -139,10 +139,7 @@ long long part2(std::vector<std::string> input) {
 					std::tuple<int, int> free_space_rng = { start, j - 1 };
 					if (std::get<1>(free_space_rng) - std::get<0>(free_space_rng) + 1 >= rng_size && std::get<0>(free_space_rng) < std::get<0>(ranges[i]) && std::get<1>(free_space_rng) < std::get<1>(ranges[i])) {
 						swap_ranges(free_space_rng, ranges[i], input);
-						/*for (const auto& s : input) {
-							std::cout << s;
-						}
-						std::cout << std::endl;*/
+
 						break;
 					}
 					free_space = false;
@@ -153,10 +150,7 @@ long long part2(std::vector<std::string> input) {
 			std::tuple<int, int> free_space_rng = { start, (int)input.size() - 1};
 			if (std::get<1>(free_space_rng) - std::get<0>(free_space_rng) + 1 >= rng_size && std::get<0>(free_space_rng) < std::get<0>(ranges[i]) && std::get<1>(free_space_rng) < std::get<1>(ranges[i])) {
 				swap_ranges(free_space_rng, ranges[i], input);
-				/*for (const auto& s : input) {
-					std::cout << s;
-				}
-				std::cout << std::endl;*/
+
 			}
 		}
 	}
